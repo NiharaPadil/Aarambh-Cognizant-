@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
 
@@ -14,7 +15,7 @@ const Page2 = () => {
           style={styles.input}
           placeholder="Text"
         />
-        <TouchableOpacity style={styles.micButton} onPress={() => alert('Microphone pressed!')}>
+        <TouchableOpacity style={styles.micButton} >
           <Image
             source={require('../assets/images/microphone.png')} // Adjust the path to your microphone icon
             style={styles.micIcon}
@@ -24,7 +25,7 @@ const Page2 = () => {
       <TouchableOpacity style={styles.submitButton}>
         <Text style={styles.buttonText}>Submit</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.exploreButton}>
+      <TouchableOpacity style={styles.exploreButton} onPress={() => router.push('./Page4')}>
         <Text style={styles.exploretext}>Explore</Text>
       </TouchableOpacity>
     </View>
