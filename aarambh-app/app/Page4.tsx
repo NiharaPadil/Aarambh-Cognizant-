@@ -1,10 +1,12 @@
+
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Modal, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Modal, StyleSheet, Image } from 'react-native';
 import diseasesData from '../constants/Diseases';  // Import the data from the external file
 
 interface Disease {
   id: string;
   title: string;
+  symptoms: string;
   dos: string[];
   donts: string[];
 }
@@ -12,6 +14,7 @@ interface Disease {
 const Page4: React.FC = () => {
   const [selectedDisease, setSelectedDisease] = useState<Disease | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const openModal = (disease: Disease) => {
     setSelectedDisease(disease);
@@ -23,21 +26,45 @@ const Page4: React.FC = () => {
     setModalVisible(false);
   };
 
+  const filteredDiseases = diseasesData.filter((disease) =>
+    disease.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <View style={styles.container}>
+      {/* Search Bar with Search Icon */}
+      <View style={styles.searchContainer}>
+        <TouchableOpacity style={styles.searchButton}>
+          <Image
+            source={require('../assets/images/search.png')}  // Path to your search icon
+            style={styles.searchIcon}  // Ensure you're using the correct style for the icon
+          />
+        </TouchableOpacity>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search for a disease..."
+          value={searchQuery}
+          onChangeText={(text) => setSearchQuery(text)}
+        />
+      </View>
       <ScrollView>
-        {diseasesData.map((disease) => (
-          <TouchableOpacity
-            key={disease.id}
-            style={styles.card}
-            onPress={() => openModal(disease)}
-          >
-            <Text style={styles.cardTitle}>{disease.title}</Text>
-          </TouchableOpacity>
-        ))}
+        {/* If no disease matches, show a message */}
+        {filteredDiseases.length === 0 ? (
+          <Text style={styles.noMatchText}>Disease not found</Text>
+        ) : (
+          filteredDiseases.map((disease) => (
+            <TouchableOpacity
+              key={disease.id}
+              style={styles.card}
+              onPress={() => openModal(disease)}
+            >
+              <Text style={styles.cardTitle}>{disease.title}</Text>
+            </TouchableOpacity>
+          ))
+        )}
       </ScrollView>
 
-      {/* Modal for Dos and Don'ts */}
+      {/* Modal for Symptoms, Dos, and Don'ts */}
       {selectedDisease && (
         <Modal
           transparent={true}
@@ -48,10 +75,18 @@ const Page4: React.FC = () => {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>{selectedDisease.title}</Text>
+              
+              {/* Symptoms Section */}
+              <Text style={styles.modalSubtitle}>Symptoms:</Text>
+              <Text style={styles.modalText}>{selectedDisease.symptoms}</Text>
+
+              {/* Dos Section */}
               <Text style={styles.modalSubtitle}>Dos:</Text>
               {selectedDisease.dos.map((doItem, index) => (
                 <Text key={index} style={styles.modalText}>- {doItem}</Text>
               ))}
+
+              {/* Don'ts Section */}
               <Text style={styles.modalSubtitle}>Don'ts:</Text>
               {selectedDisease.donts.map((dontItem, index) => (
                 <Text key={index} style={styles.modalText}>- {dontItem}</Text>
@@ -74,6 +109,30 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#F5F5F5',
   },
+  searchContainer: { 
+    flexDirection: 'row',   // Align the icon and text input in a row
+    alignItems: 'center',   // Vertically center the content
+    backgroundColor: '#fff', // White background for the search bar
+    borderRadius: 10,       // Rounded corners
+    borderWidth: 1,         // Border for the whole search bar
+    borderColor: '#007BFF', // Blue border color
+    paddingHorizontal: 10,  // Padding inside the search bar
+    height: 50,             // Set height to make it look like a search bar
+    marginBottom: 15,
+  },
+  searchButton: {
+    padding: 5,             // Padding around the icon
+  },
+  searchIcon: {
+    width: 30,              // Icon width
+    height: 30,             // Icon height
+    // tintColor: '#007BFF',   // Icon color (optional, you can remove this if you have a colored icon)
+  },
+  searchBar: {
+    flex: 1,                // Let the text input take up remaining space
+    paddingLeft: 10,        // Space between icon and text input
+    fontSize: 16,           // Adjust font size for input
+  },
   card: {
     backgroundColor: '#007BFF',
     padding: 20,
@@ -83,6 +142,12 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     color: '#fff',
+  },
+  noMatchText: {
+    fontSize: 18,
+    textAlign: 'center',
+    color: '#FF0000',
+    marginTop: 20,
   },
   modalContainer: {
     flex: 1,
