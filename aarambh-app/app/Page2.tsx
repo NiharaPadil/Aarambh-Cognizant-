@@ -8,22 +8,32 @@ const Page2 = () => {
   const [selectedDisease, setSelectedDisease] = useState(null); // State for selected disease
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
 
-  const handleSubmit = () => {
-    // Split input text into symptoms (you can modify the delimiter as needed)
-    const symptomsArray = inputText.split(',').map(symptom => symptom.trim().toLowerCase());
+  const handleSubmit = async () => {
+    const symptomsArray = inputText.split(',').map(symptom => symptom.trim().toLowerCase()).join(' ');
 
-    // Find the disease based on the entered symptoms
-    const foundDisease = diseasesData.find(disease => 
-      symptomsArray.every(symptom => disease.symptoms.map(s => s.toLowerCase()).includes(symptom))
-    );
+    try {
+        const response = await fetch('http://127.0.0.1:5000/predict', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ symptoms: symptomsArray }),
+});
 
-    if (foundDisease) {
-      setSelectedDisease(foundDisease); // Set selected disease
-      setModalVisible(true); // Show modal
-    } else {
-      alert('Disease not found.'); // Alert if not found
+        const data = await response.json();
+
+        if (data.disease) {
+            setSelectedDisease({ title: data.disease, dos: [], donts: [] }); // Adjust based on your needs
+            setModalVisible(true);
+        } else {
+            alert('Disease not found.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while fetching the disease prediction.');
     }
-  };
+};
+
 
   const closeModal = () => {
     setModalVisible(false); // Close modal
