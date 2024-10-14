@@ -2,6 +2,7 @@ const diseasesData = [
   {
     "id": "1",
     "title": "Malaria",
+    "symptoms": ["headache", "fever  "],
     "dos": ["Use insect repellent", "Sleep under a mosquito net", "Take prescribed medications"],
     "donts": ["Don't leave stagnant water around", "Avoid going out during mosquito peak hours"]
   },

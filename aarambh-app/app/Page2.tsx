@@ -1,8 +1,36 @@
 import { router } from 'expo-router';
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Modal } from 'react-native';
+import diseasesData from '../constants/Diseases.js'; // Import diseases data
 
 const Page2 = () => {
+  const [inputText, setInputText] = useState(''); // State for input text
+  const [selectedDisease, setSelectedDisease] = useState(null); // State for selected disease
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+
+  const handleSubmit = () => {
+    // Split input text into symptoms (you can modify the delimiter as needed)
+    const symptomsArray = inputText.split(',').map(symptom => symptom.trim().toLowerCase());
+
+    // Find the disease based on the entered symptoms
+    const foundDisease = diseasesData.find(disease => 
+      symptomsArray.every(symptom => disease.symptoms.map(s => s.toLowerCase()).includes(symptom))
+    );
+
+    if (foundDisease) {
+      setSelectedDisease(foundDisease); // Set selected disease
+      setModalVisible(true); // Show modal
+    } else {
+      alert('Disease not found.'); // Alert if not found
+    }
+  };
+
+  const closeModal = () => {
+    setModalVisible(false); // Close modal
+    setInputText(''); // Clear input text
+    setSelectedDisease(null); // Clear selected disease
+  };
+
   return (
     <View style={styles.container}>
       <Image
@@ -13,21 +41,50 @@ const Page2 = () => {
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Text"
+          placeholder="Enter symptoms (comma-separated)" // Placeholder text
+          value={inputText} // Set the value from state
+          onChangeText={setInputText} // Update state on text change
         />
-        <TouchableOpacity style={styles.micButton} >
+        <TouchableOpacity style={styles.micButton}>
           <Image
             source={require('../assets/images/microphone.png')} // Adjust the path to your microphone icon
             style={styles.micIcon}
           />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.submitButton}>
+      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Submit</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.exploreButton} onPress={() => router.push('./Page4')}>
         <Text style={styles.exploretext}>Explore</Text>
       </TouchableOpacity>
+
+      {/* Modal for displaying disease information */}
+      {selectedDisease && (
+        <Modal
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={closeModal}
+          animationType="slide"
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{selectedDisease.title}</Text>
+              <Text style={styles.modalSubtitle}>Dos:</Text>
+              {selectedDisease.dos.map((doItem, index) => (
+                <Text key={index} style={styles.modalText}>- {doItem}</Text>
+              ))}
+              <Text style={styles.modalSubtitle}>Don'ts:</Text>
+              {selectedDisease.donts.map((dontItem, index) => (
+                <Text key={index} style={styles.modalText}>- {dontItem}</Text>
+              ))}
+              <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 };
@@ -37,13 +94,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#E0F0FF', // Light blue background
+    backgroundColor: '#E0F0FF',
     padding: 20,
     marginBottom: -100,
   },
   image: {
-    width: 250,  // Adjust the width to fit your needs
-    height: 220, // Adjust the height as per the design
+    width: 250,
+    height: 220,
     resizeMode: 'contain',
     marginBottom: 10,
     marginTop: -150,
@@ -51,7 +108,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: '#000', // Black color for the text
+    color: '#000',
     marginBottom: 50,
   },
   inputContainer: {
@@ -78,14 +135,14 @@ const styles = StyleSheet.create({
     padding: 10,
     marginRight: 10,
   },
-micIcon: {
-  width: 24,  // Adjust the width of the icon
-  height: 24, // Adjust the height of the icon
-  bottom: -15,
-  marginRight: -10,
-},
+  micIcon: {
+    width: 24,
+    height: 24,
+    bottom: -15,
+    marginRight: -10,
+  },
   submitButton: {
-    backgroundColor: '#007BFF', // Button color
+    backgroundColor: '#007BFF',
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 80,
@@ -102,16 +159,50 @@ micIcon: {
     marginBottom: 50,
   },
   buttonText: {
-    color: '#fff', // White text for the submit button
+    color: '#fff',
     fontSize: 18,
   },
   exploretext: {
-    color: '#007BFF', // Blue text for the explore button
+    color: '#007BFF',
     fontSize: 18,
-
   },
-  micText: {
-    fontSize: 30,
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    maxHeight: '70%',
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  modalSubtitle: {
+    fontSize: 18,
+    marginTop: 10,
+    fontWeight: 'bold',
+  },
+  modalText: {
+    fontSize: 16,
+    marginVertical: 2,
+  },
+  closeButton: {
+    marginTop: 20,
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 5,
+    alignSelf: 'center',
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
 
