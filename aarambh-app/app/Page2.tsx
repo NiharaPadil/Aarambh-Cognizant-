@@ -23,12 +23,12 @@ const Page2 = () => {
         const data = await response.json();
 
         if (data.disease) {
-            setSelectedDisease({ title: data.disease, dos: [], donts: [] }); // Adjust based on your needs
+            setSelectedDisease({ title:data.disease, dos: [], donts: [] }); // Adjust based on your needs
             setModalVisible(true);
         } else {
             alert('Disease not found.');
         }
-    } catch (error) {
+       } catch (error) {
         console.error('Error:', error);
         alert('An error occurred while fetching the disease prediction.');
     }
@@ -51,7 +51,7 @@ const Page2 = () => {
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Enter symptoms (comma-separated)" // Placeholder text
+          placeholder="Enter symptoms " // Placeholder text
           value={inputText} // Set the value from state
           onChangeText={setInputText} // Update state on text change
         />
